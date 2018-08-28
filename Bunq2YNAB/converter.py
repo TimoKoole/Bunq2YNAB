@@ -2,6 +2,14 @@ import sys
 import os
 import pandas as pd
 
+EXPORT_COLUMNS = ["Date", "Payee", "Category", "Memo", "Outflow", "Inflow"]
+
+def convert_date(date):
+    year = str(date.year)
+    month = str(date.month)
+    day = str(date.day)
+    return day + '/' + month + '/' + year
+
 
 class Converter():
     def __init__(self, inputfile):
@@ -10,7 +18,7 @@ class Converter():
             index=self.inputdata.index, columns=EXPORT_COLUMNS, data=None)
 
     def convert(self):
-        self.outputdata['Date'] = self.inputdata['Datum']
+        self.outputdata['Date'] = self.inputdata['Date'].apply(convert_date)
         self.outputdata['Payee'] = self.inputdata['Name']
         self.outputdata['Memo'] = self.inputdata['Description']
         self.outputdata['Outflow'] = self.inputdata[self.inputdata['Amount'] < 0]['Amount'] * -1
@@ -23,6 +31,6 @@ class Converter():
 
 
 if __name__ == '__main__':
-    converter = Converter('2018-08-28_19-51-52_bunq-statement.csv')
+    converter = Converter(os.path.dirname(sys.argv[0]) + '\\transactions.csv')
     converter.convert()
     converter.write_outputfile( os.path.dirname(sys.argv[0]),'bunq.csv' )
