@@ -14,4 +14,4 @@ if __name__ == '__main__':
 
     converter = Converter(args.input)
     converter.convert()
-    converter.write_outputfile(args.output)
+    converter.write_output_file(args.output)

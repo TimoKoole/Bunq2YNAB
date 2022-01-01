@@ -10,20 +10,24 @@ def convert_date(date):
     return day + '/' + month + '/' + year
 
 
-class Converter():
-    def __init__(self, inputfile):
-        self.inputdata = pd.read_csv(inputfile, parse_dates=[0])
-        self.outputdata = pd.DataFrame(
-            index=self.inputdata.index, columns=EXPORT_COLUMNS, data=None)
+class Converter:
+    def __init__(self, input_file: str = None, data=None):
+        if data is None:
+            self.input_data = pd.read_csv(input_file, parse_dates=[0], decimal='.', thousands=",")
+        else:
+            self.input_data = data
+        print(str(self.input_data.to_dict()).replace(" nan", " float('nan')"))
+        self.output_data = pd.DataFrame(
+            index=self.input_data.index, columns=EXPORT_COLUMNS, data=None)
 
     def convert(self):
-        self.outputdata['Date'] = self.inputdata['Date'].apply(convert_date)
-        self.outputdata['Payee'] = self.inputdata['Name']
-        self.outputdata['Memo'] = self.inputdata['Description']
-        self.outputdata['Outflow'] = self.inputdata[self.inputdata['Amount'].astype(float) < 0]['Amount'].astype(
+        self.output_data['Date'] = self.input_data['Date'].apply(convert_date)
+        self.output_data['Payee'] = self.input_data['Name']
+        self.output_data['Memo'] = self.input_data['Description']
+        self.output_data['Outflow'] = self.input_data[self.input_data['Amount'].astype(float) < 0]['Amount'].astype(
             float) * -1
-        self.outputdata['Inflow'] = self.inputdata[self.inputdata['Amount'] >= 0]['Amount']
-        self.outputdata.fillna('', inplace=True)
+        self.output_data['Inflow'] = self.input_data[self.input_data['Amount'] >= 0]['Amount']
+        self.output_data.fillna('', inplace=True)
 
-    def write_outputfile(self, outputfile):
-        self.outputdata.to_csv(outputfile)
+    def write_output_file(self, output_file):
+        self.output_data.to_csv(output_file)
